@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Assignment 5</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.css" />
+  <style>
+    #map {
+        width: 1000px;
+        height: 600px;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.js"></script>
+  <div id="map"></div>
+</body>
+</html>
+<script>
+
+
+fetch('https://api.data.gov.sg/v1/environment/psi')
+    .then(response => response.json()) //transform data to json
+    .then(data => {
+
+        let regeionData = data.region_metadata;
+        console.log(regeionData);
+
+        let psiData = data.items[0].readings.psi_twenty_four_hourly;
+        console.log(psiData);
+
+        let tiles = new L.tileLayer('https://maps-{s}.onemap.sg/v3/Default/{z}/{x}/{y}.png', {
+        detectRetina: true,
+        maxZoom: 18,
+        minZoom: 11,
+        //Do not remove this attribution
+        attribution: '<img src="https://docs.onemap.sg/maps/images/oneMap64-01.png" style="height:20px;width:20px;">' +
+                    'New OneMap | Map data © contributors, <a href="http://SLA.gov.sg">Singapore Land Authority</a>'
+        });
+
+        let map = new L.Map("map", {
+            center: [1.347833, 103.809357], 
+            zoom: 11,
+            maxBounds: L.latLngBounds(L.latLng(1.1, 103.5), L.latLng(1.5, 104.3))
+        })
+        .addLayer(tiles);
+        
+        regeionData.forEach(element => {
+            let marker = L.marker([element.label_location.latitude, element.label_location.longitude]).addTo(map);
+            marker.bindPopup("<b>"+ element.name + " PSI: "+psiData[element.name] +"</b>");
+        });
+        
+        // let marker = L.marker([1.3775674706920313, 103.84876554003246]).addTo(map);
+        // marker.bindPopup("<b>SIT NYP campus</b>");             
+
+});
+</script>
